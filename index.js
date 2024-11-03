@@ -24,6 +24,21 @@ const API_KEY =
  * This function should execute immediately.
  */
 
+/**
+ * 2. Create an event handler for breedSelect that does the following:
+ * - Retrieve information on the selected breed from the cat API using fetch().
+ *  - Make sure your request is receiving multiple array items!
+ *  - Check the API documentation if you're only getting a single object.
+ * - For each object in the response array, create a new element for the carousel.
+ *  - Append each of these new elements to the carousel.
+ * - Use the other data you have been given to create an informational section within the infoDump element.
+ *  - Be creative with how you create DOM elements and HTML.
+ *  - Feel free to edit index.html and styles.css to suit your needs, but be careful!
+ *  - Remember that functionality comes first, but user experience and design are important.
+ * - Each new selection should clear, re-populate, and restart the Carousel.
+ * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
+ */
+
 //===================================================================
 //written using Fetch
 
@@ -46,25 +61,7 @@ const API_KEY =
 // }
 // initialLoad();
 
-//==============================================================
 
-/**
- * 2. Create an event handler for breedSelect that does the following:
- * - Retrieve information on the selected breed from the cat API using fetch().
- *  - Make sure your request is receiving multiple array items!
- *  - Check the API documentation if you're only getting a single object.
- * - For each object in the response array, create a new element for the carousel.
- *  - Append each of these new elements to the carousel.
- * - Use the other data you have been given to create an informational section within the infoDump element.
- *  - Be creative with how you create DOM elements and HTML.
- *  - Feel free to edit index.html and styles.css to suit your needs, but be careful!
- *  - Remember that functionality comes first, but user experience and design are important.
- * - Each new selection should clear, re-populate, and restart the Carousel.
- * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
- */
-//============================================
-
-// Written using Fetch
 
 // breedSelect.addEventListener("change",async() => {
 //     try{
@@ -89,6 +86,7 @@ const API_KEY =
 //     }
 // })
 
+//End Written using Fetch
 //=================================================
 
 /**
@@ -108,7 +106,9 @@ const API_KEY =
 
 async function initialLoad() {
   try {
-    const response = await axios.get('https://api.thecatapi.com/v1/breeds');
+    const response = await axios.get('https://api.thecatapi.com/v1/breeds', {
+        onDownloadProgress: updateProgress
+      });
     const jsonData = response.data;
 
         for(let infos of jsonData) {
@@ -130,7 +130,12 @@ breedSelect.addEventListener("change",async() => {
     try{
         const breedId = breedSelect.value;
         // console.log(breedId)
-        const response = await axios.get(`https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${breedId}&api_key=${API_KEY}`);
+        const response = await axios.get(
+            `https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${breedId}&api_key=${API_KEY}`,
+            {
+              onDownloadProgress: updateProgress 
+            }
+          );        
         const jsonData = response.data;
         Carousel.clear();
 
@@ -142,6 +147,7 @@ breedSelect.addEventListener("change",async() => {
             Carousel.appendCarousel(createCarousel);
             Carousel.start();
         });
+        setTimeout(() => progressBar.classList.add("height-0"), 3000);
     }
     catch(error){
 console.log(error)
@@ -156,31 +162,6 @@ console.log(error)
  * - Add a console.log statement to indicate when requests begin.
  * - As an added challenge, try to do this on your own without referencing the lesson material.
  */
-
-axios.interceptors.request.use(request => {
-     request.metadata = request.metadata || {};
-     request.metadata.startTime = new Date().getTime();
-     progressBar.style.width = '0%';
-     return request;
-});
-
-axios.interceptors.response.use(
-    response => {
-        response.config.metadata.endTime = new Date().getTime();
-        response.config.metadata.durationInMS = response.config.metadata.endTime - response.config.metadata.startTime;
-
-        console.log(`Request took ${response.config.metadata.durationInMS} milliseconds.`);
-        return response;
-    },
-    error => {
-        error.config.metadata.endTime = new Date().getTime();
-        error.config.metadata.durationInMS = error.config.metadata.endTime - error.config.metadata.startTime;
-
-        console.log(`Request took ${error.config.metadata.durationInMS} milliseconds.`);
-        throw error;
-    }
-);
-
 
 /**
  * 6. Next, we'll create a progress bar to indicate the request is in progress.
@@ -198,14 +179,60 @@ axios.interceptors.response.use(
  *   with for future projects.
  */
 
-
-  
-
 /**
  * 7. As a final element of progress indication, add the following to your axios interceptors:
  * - In your request interceptor, set the body element's cursor style to "progress."
  * - In your response interceptor, remove the progress cursor style from the body element.
  */
+
+//Part  5,6 and 7
+
+axios.interceptors.request.use(request => {
+    document.body.style.cursor = 'progress';
+     request.metadata = request.metadata || {};
+     request.metadata.startTime = new Date().getTime();
+     progressBar.style.width = '0%';
+    
+     return request;
+});
+
+axios.interceptors.response.use(
+    response => {
+        document.body.style.cursor = 'default';
+    progressBar.style.width = '100%';
+        response.config.metadata.endTime = new Date().getTime();
+        response.config.metadata.durationInMS = response.config.metadata.endTime - response.config.metadata.startTime;
+
+        console.log(`Request took ${response.config.metadata.durationInMS} milliseconds.`);
+        // onDownloadProgress: updateProgress
+        return response;
+    },
+    error => {
+        error.config.metadata.endTime = new Date().getTime();
+        error.config.metadata.durationInMS = error.config.metadata.endTime - error.config.metadata.startTime;
+
+        console.log(`Request took ${error.config.metadata.durationInMS} milliseconds.`);
+        throw error;
+    }
+);
+
+
+function updateProgress(event) {
+    if (event.lengthComputable) {
+
+      const progressPercent = Math.floor((event.loaded / event.total) * 100);
+      progressBar.style.width = `${progressPercent}%`;
+      console.log(`Progress: ${progressPercent}%`);
+    } else {
+      progressBar.style.width = '100%'; 
+
+    }
+  }
+  
+//end Part  5,6 and 7
+
+  
+
 /**
  * 8. To practice posting data, we'll create a system to "favourite" certain images.
  * - The skeleton of this function has already been created for you.
@@ -217,9 +244,8 @@ axios.interceptors.response.use(
  *   you delete that favourite using the API, giving this function "toggle" functionality.
  * - You can call this function by clicking on the heart at the top right of any image.
  */
-export async function favourite(imgId) {
-  // your code here
-}
+
+
 
 /**
  * 9. Test your favourite() function by creating a getFavourites() function.
@@ -230,6 +256,8 @@ export async function favourite(imgId) {
  *    If that isn't in its own function, maybe it should be so you don't have to
  *    repeat yourself in this section.
  */
+
+
 
 /**
  * 10. Test your site, thoroughly!

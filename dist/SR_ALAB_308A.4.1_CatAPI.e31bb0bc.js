@@ -12243,10 +12243,6 @@ exports.Axios = Axios;
 },{"./lib/axios.js":"node_modules/axios/lib/axios.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.favourite = favourite;
 var Carousel = _interopRequireWildcard(require("./Carousel.js"));
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
@@ -12280,6 +12276,21 @@ var API_KEY = "live_Pwz1DDFj6lR8faG9VyV09FQbvpJGHDGSuCGU9YTUlBmYHmVOZBsnw3uURi3f
  * This function should execute immediately.
  */
 
+/**
+ * 2. Create an event handler for breedSelect that does the following:
+ * - Retrieve information on the selected breed from the cat API using fetch().
+ *  - Make sure your request is receiving multiple array items!
+ *  - Check the API documentation if you're only getting a single object.
+ * - For each object in the response array, create a new element for the carousel.
+ *  - Append each of these new elements to the carousel.
+ * - Use the other data you have been given to create an informational section within the infoDump element.
+ *  - Be creative with how you create DOM elements and HTML.
+ *  - Feel free to edit index.html and styles.css to suit your needs, but be careful!
+ *  - Remember that functionality comes first, but user experience and design are important.
+ * - Each new selection should clear, re-populate, and restart the Carousel.
+ * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
+ */
+
 //===================================================================
 //written using Fetch
 
@@ -12301,26 +12312,6 @@ var API_KEY = "live_Pwz1DDFj6lR8faG9VyV09FQbvpJGHDGSuCGU9YTUlBmYHmVOZBsnw3uURi3f
 // }
 // }
 // initialLoad();
-
-//==============================================================
-
-/**
- * 2. Create an event handler for breedSelect that does the following:
- * - Retrieve information on the selected breed from the cat API using fetch().
- *  - Make sure your request is receiving multiple array items!
- *  - Check the API documentation if you're only getting a single object.
- * - For each object in the response array, create a new element for the carousel.
- *  - Append each of these new elements to the carousel.
- * - Use the other data you have been given to create an informational section within the infoDump element.
- *  - Be creative with how you create DOM elements and HTML.
- *  - Feel free to edit index.html and styles.css to suit your needs, but be careful!
- *  - Remember that functionality comes first, but user experience and design are important.
- * - Each new selection should clear, re-populate, and restart the Carousel.
- * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
- */
-//============================================
-
-// Written using Fetch
 
 // breedSelect.addEventListener("change",async() => {
 //     try{
@@ -12345,6 +12336,7 @@ var API_KEY = "live_Pwz1DDFj6lR8faG9VyV09FQbvpJGHDGSuCGU9YTUlBmYHmVOZBsnw3uURi3f
 //     }
 // })
 
+//End Written using Fetch
 //=================================================
 
 /**
@@ -12372,7 +12364,9 @@ function _initialLoad() {
         case 0:
           _context2.prev = 0;
           _context2.next = 3;
-          return _axios.default.get('https://api.thecatapi.com/v1/breeds');
+          return _axios.default.get('https://api.thecatapi.com/v1/breeds', {
+            onDownloadProgress: updateProgress
+          });
         case 3:
           response = _context2.sent;
           jsonData = response.data;
@@ -12413,7 +12407,9 @@ breedSelect.addEventListener("change", /*#__PURE__*/_asyncToGenerator(/*#__PURE_
         _context.prev = 0;
         breedId = breedSelect.value; // console.log(breedId)
         _context.next = 4;
-        return _axios.default.get("https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=".concat(breedId, "&api_key=").concat(API_KEY));
+        return _axios.default.get("https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=".concat(breedId, "&api_key=").concat(API_KEY), {
+          onDownloadProgress: updateProgress
+        });
       case 4:
         response = _context.sent;
         jsonData = response.data;
@@ -12426,17 +12422,20 @@ breedSelect.addEventListener("change", /*#__PURE__*/_asyncToGenerator(/*#__PURE_
           Carousel.appendCarousel(createCarousel);
           Carousel.start();
         });
-        _context.next = 13;
+        setTimeout(function () {
+          return progressBar.classList.add("height-0");
+        }, 3000);
+        _context.next = 14;
         break;
-      case 10:
-        _context.prev = 10;
+      case 11:
+        _context.prev = 11;
         _context.t0 = _context["catch"](0);
         console.log(_context.t0);
-      case 13:
+      case 14:
       case "end":
         return _context.stop();
     }
-  }, _callee, null, [[0, 10]]);
+  }, _callee, null, [[0, 11]]);
 })));
 
 /**
@@ -12445,24 +12444,6 @@ breedSelect.addEventListener("change", /*#__PURE__*/_asyncToGenerator(/*#__PURE_
  * - Add a console.log statement to indicate when requests begin.
  * - As an added challenge, try to do this on your own without referencing the lesson material.
  */
-
-_axios.default.interceptors.request.use(function (request) {
-  request.metadata = request.metadata || {};
-  request.metadata.startTime = new Date().getTime();
-  progressBar.style.width = '0%';
-  return request;
-});
-_axios.default.interceptors.response.use(function (response) {
-  response.config.metadata.endTime = new Date().getTime();
-  response.config.metadata.durationInMS = response.config.metadata.endTime - response.config.metadata.startTime;
-  console.log("Request took ".concat(response.config.metadata.durationInMS, " milliseconds."));
-  return response;
-}, function (error) {
-  error.config.metadata.endTime = new Date().getTime();
-  error.config.metadata.durationInMS = error.config.metadata.endTime - error.config.metadata.startTime;
-  console.log("Request took ".concat(error.config.metadata.durationInMS, " milliseconds."));
-  throw error;
-});
 
 /**
  * 6. Next, we'll create a progress bar to indicate the request is in progress.
@@ -12485,6 +12466,42 @@ _axios.default.interceptors.response.use(function (response) {
  * - In your request interceptor, set the body element's cursor style to "progress."
  * - In your response interceptor, remove the progress cursor style from the body element.
  */
+
+//Part  5,6 and 7
+
+_axios.default.interceptors.request.use(function (request) {
+  document.body.style.cursor = 'progress';
+  request.metadata = request.metadata || {};
+  request.metadata.startTime = new Date().getTime();
+  progressBar.style.width = '0%';
+  return request;
+});
+_axios.default.interceptors.response.use(function (response) {
+  document.body.style.cursor = 'default';
+  progressBar.style.width = '100%';
+  response.config.metadata.endTime = new Date().getTime();
+  response.config.metadata.durationInMS = response.config.metadata.endTime - response.config.metadata.startTime;
+  console.log("Request took ".concat(response.config.metadata.durationInMS, " milliseconds."));
+  // onDownloadProgress: updateProgress
+  return response;
+}, function (error) {
+  error.config.metadata.endTime = new Date().getTime();
+  error.config.metadata.durationInMS = error.config.metadata.endTime - error.config.metadata.startTime;
+  console.log("Request took ".concat(error.config.metadata.durationInMS, " milliseconds."));
+  throw error;
+});
+function updateProgress(event) {
+  if (event.lengthComputable) {
+    var progressPercent = Math.floor(event.loaded / event.total * 100);
+    progressBar.style.width = "".concat(progressPercent, "%");
+    console.log("Progress: ".concat(progressPercent, "%"));
+  } else {
+    progressBar.style.width = '100%';
+  }
+}
+
+//end Part  5,6 and 7
+
 /**
  * 8. To practice posting data, we'll create a system to "favourite" certain images.
  * - The skeleton of this function has already been created for you.
@@ -12496,9 +12513,7 @@ _axios.default.interceptors.response.use(function (response) {
  *   you delete that favourite using the API, giving this function "toggle" functionality.
  * - You can call this function by clicking on the heart at the top right of any image.
  */
-function favourite(_x) {
-  return _favourite.apply(this, arguments);
-}
+
 /**
  * 9. Test your favourite() function by creating a getFavourites() function.
  * - Use Axios to get all of your favourites from the cat API.
@@ -12508,6 +12523,7 @@ function favourite(_x) {
  *    If that isn't in its own function, maybe it should be so you don't have to
  *    repeat yourself in this section.
  */
+
 /**
  * 10. Test your site, thoroughly!
  * - What happens when you try to load the Malayan breed?
@@ -12515,18 +12531,6 @@ function favourite(_x) {
  * - Test other breeds as well. Not every breed has the same data available, so
  *   your code should account for this.
  */
-function _favourite() {
-  _favourite = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(imgId) {
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
-        case 0:
-        case "end":
-          return _context3.stop();
-      }
-    }, _callee3);
-  }));
-  return _favourite.apply(this, arguments);
-}
 },{"./Carousel.js":"Carousel.js","axios":"node_modules/axios/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -12552,7 +12556,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51609" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62960" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
