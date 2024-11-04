@@ -245,7 +245,40 @@ function updateProgress(event) {
  * - You can call this function by clicking on the heart at the top right of any image.
  */
 
+export async function favourite(imgId) {
 
+    
+   const getresposne=  await axios.get('https://api.thecatapi.com/v1/favourites',{ 
+    headers: { 
+        'Content-Type': 'application/json; charset=UTF-8',
+        'x-api-key': API_KEY
+    }
+});
+const favourites = getresposne.data;
+
+    const existingFavourite = favourites.find(fav => fav.image_id === imgId);
+
+    if (existingFavourite) {
+        console.log(`Image ${imgId} is exists in our favourites.`);
+           await axios.delete(`https://api.thecatapi.com/v1/favourites/${existingFavourite.id}`,{ 
+            headers: { 
+                'Content-Type': 'application/json; charset=UTF-8',
+                'x-api-key': API_KEY
+            }
+        });
+      console.log(`Image ${imgId} removed from favourites.`);
+    }
+    // console.log("hello")
+    const response=  await axios.post('https://api.thecatapi.com/v1/favourites', {
+            image_id: imgId},{ 
+                headers: { 
+                    'Content-Type': 'application/json; charset=UTF-8',
+                    'x-api-key': API_KEY
+                }
+            });
+   console.log(response)
+
+}
 
 /**
  * 9. Test your favourite() function by creating a getFavourites() function.
@@ -257,7 +290,36 @@ function updateProgress(event) {
  *    repeat yourself in this section.
  */
 
+getFavouritesBtn.addEventListener("click", async () => {
+    try {
 
+        const response=  await axios.get('https://api.thecatapi.com/v1/favourites',{ 
+            headers: { 
+                'Content-Type': 'application/json; charset=UTF-8',
+                'x-api-key': API_KEY
+            }
+        });
+            const favourites = response.data;
+
+            console.log("favourites"+ favourites)
+  
+      Carousel.clear();
+  
+      favourites.forEach(fav => {
+        if (fav.image) {
+          const altText = `Favourite Image ${fav.image.id}`;
+          const carouselItem = Carousel.createCarouselItem(fav.image.url, altText, fav.image.id);
+          Carousel.appendCarousel(carouselItem);
+        }
+      });
+  
+      Carousel.start();
+      console.log("Favourites loaded.");
+  
+    } catch (error) {
+      console.error("Error loading favourites:", error);
+    }
+  });
 
 /**
  * 10. Test your site, thoroughly!

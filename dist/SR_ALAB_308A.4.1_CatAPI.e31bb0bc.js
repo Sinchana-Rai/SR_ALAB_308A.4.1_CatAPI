@@ -12243,6 +12243,10 @@ exports.Axios = Axios;
 },{"./lib/axios.js":"node_modules/axios/lib/axios.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.favourite = favourite;
 var Carousel = _interopRequireWildcard(require("./Carousel.js"));
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
@@ -12357,18 +12361,18 @@ function initialLoad() {
   return _initialLoad.apply(this, arguments);
 }
 function _initialLoad() {
-  _initialLoad = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+  _initialLoad = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
     var response, jsonData, _iterator, _step, infos, options;
-    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          _context2.prev = 0;
-          _context2.next = 3;
+          _context3.prev = 0;
+          _context3.next = 3;
           return _axios.default.get('https://api.thecatapi.com/v1/breeds', {
             onDownloadProgress: updateProgress
           });
         case 3:
-          response = _context2.sent;
+          response = _context3.sent;
           jsonData = response.data;
           _iterator = _createForOfIteratorHelper(jsonData);
           try {
@@ -12384,17 +12388,17 @@ function _initialLoad() {
           } finally {
             _iterator.f();
           }
-          _context2.next = 12;
+          _context3.next = 12;
           break;
         case 9:
-          _context2.prev = 9;
-          _context2.t0 = _context2["catch"](0);
-          console.error(_context2.t0);
+          _context3.prev = 9;
+          _context3.t0 = _context3["catch"](0);
+          console.error(_context3.t0);
         case 12:
         case "end":
-          return _context2.stop();
+          return _context3.stop();
       }
-    }, _callee2, null, [[0, 9]]);
+    }, _callee3, null, [[0, 9]]);
   }));
   return _initialLoad.apply(this, arguments);
 }
@@ -12513,7 +12517,9 @@ function updateProgress(event) {
  *   you delete that favourite using the API, giving this function "toggle" functionality.
  * - You can call this function by clicking on the heart at the top right of any image.
  */
-
+function favourite(_x) {
+  return _favourite.apply(this, arguments);
+}
 /**
  * 9. Test your favourite() function by creating a getFavourites() function.
  * - Use Axios to get all of your favourites from the cat API.
@@ -12523,6 +12529,99 @@ function updateProgress(event) {
  *    If that isn't in its own function, maybe it should be so you don't have to
  *    repeat yourself in this section.
  */
+function _favourite() {
+  _favourite = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(imgId) {
+    var getresposne, favourites, existingFavourite, response;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.next = 2;
+          return _axios.default.get('https://api.thecatapi.com/v1/favourites', {
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+              'x-api-key': API_KEY
+            }
+          });
+        case 2:
+          getresposne = _context4.sent;
+          favourites = getresposne.data;
+          existingFavourite = favourites.find(function (fav) {
+            return fav.image_id === imgId;
+          });
+          if (!existingFavourite) {
+            _context4.next = 10;
+            break;
+          }
+          console.log("Image ".concat(imgId, " is exists in our favourites."));
+          _context4.next = 9;
+          return _axios.default.delete("https://api.thecatapi.com/v1/favourites/".concat(existingFavourite.id), {
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+              'x-api-key': API_KEY
+            }
+          });
+        case 9:
+          console.log("Image ".concat(imgId, " removed from favourites."));
+        case 10:
+          _context4.next = 12;
+          return _axios.default.post('https://api.thecatapi.com/v1/favourites', {
+            image_id: imgId
+          }, {
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+              'x-api-key': API_KEY
+            }
+          });
+        case 12:
+          response = _context4.sent;
+          console.log(response);
+        case 14:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4);
+  }));
+  return _favourite.apply(this, arguments);
+}
+getFavouritesBtn.addEventListener("click", /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+  var response, favourites;
+  return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+    while (1) switch (_context2.prev = _context2.next) {
+      case 0:
+        _context2.prev = 0;
+        _context2.next = 3;
+        return _axios.default.get('https://api.thecatapi.com/v1/favourites', {
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'x-api-key': API_KEY
+          }
+        });
+      case 3:
+        response = _context2.sent;
+        favourites = response.data;
+        console.log("favourites" + favourites);
+        Carousel.clear();
+        favourites.forEach(function (fav) {
+          if (fav.image) {
+            var altText = "Favourite Image ".concat(fav.image.id);
+            var carouselItem = Carousel.createCarouselItem(fav.image.url, altText, fav.image.id);
+            Carousel.appendCarousel(carouselItem);
+          }
+        });
+        Carousel.start();
+        console.log("Favourites loaded.");
+        _context2.next = 15;
+        break;
+      case 12:
+        _context2.prev = 12;
+        _context2.t0 = _context2["catch"](0);
+        console.error("Error loading favourites:", _context2.t0);
+      case 15:
+      case "end":
+        return _context2.stop();
+    }
+  }, _callee2, null, [[0, 12]]);
+})));
 
 /**
  * 10. Test your site, thoroughly!
